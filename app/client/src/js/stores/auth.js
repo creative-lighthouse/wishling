@@ -37,6 +37,15 @@ function setUser(user) {
     state.loaded = true;
 }
 
+/**
+ * Nach Merken/Entfernen: steuert, ob "Gemerkte Listen" in der Navigation erscheint
+ */
+function setSavedCount(count) {
+    if (state.user) {
+        state.user.savedCount = count;
+    }
+}
+
 async function logout() {
     try {
         await authApi.logout();
@@ -50,6 +59,7 @@ export function useAuth() {
         state: readonly(state),
         ensureLoaded,
         setUser,
+        setSavedCount,
         logout,
     };
 }

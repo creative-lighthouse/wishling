@@ -5,6 +5,7 @@ import HomeView from '@/views/HomeView.vue';
 import LoginView from '@/views/LoginView.vue';
 import LoginVerifyView from '@/views/LoginVerifyView.vue';
 import MyListsView from '@/views/MyListsView.vue';
+import SavedListsView from '@/views/SavedListsView.vue';
 import WishlistEditView from '@/views/WishlistEditView.vue';
 import WishlistGuestView from '@/views/WishlistGuestView.vue';
 import ProfileView from '@/views/ProfileView.vue';
@@ -18,6 +19,7 @@ const routes = [
     { path: '/login/bestaetigen', name: 'login-verify', component: LoginVerifyView, meta: { title: 'Anmeldung' } },
     { path: '/meine-listen', name: 'my-lists', component: MyListsView, meta: { title: 'Meine Listen', requiresAuth: true } },
     { path: '/meine-listen/:hash', name: 'wishlist-edit', component: WishlistEditView, props: true, meta: { requiresAuth: true } },
+    { path: '/gemerkte-listen', name: 'saved-lists', component: SavedListsView, meta: { title: 'Gemerkte Listen', requiresAuth: true } },
     { path: '/liste/:hash', name: 'wishlist-guest', component: WishlistGuestView, props: true },
     { path: '/profil', name: 'profile', component: ProfileView, meta: { title: 'Profil', requiresAuth: true } },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView, meta: { title: 'Nicht gefunden' } },

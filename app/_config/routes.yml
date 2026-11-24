@@ -11,10 +11,12 @@ SilverStripe\Control\Director:
     'api/wishlists': 'App\Api\WishlistApiController'
     'api/wishes': 'App\Api\WishApiController'
     'api/public': 'App\Api\PublicApiController'
+    'api/saved': 'App\Api\SavedWishlistApiController'
 
     # Vue-Frontend (SPA) – das Routing übernimmt der Vue Router
     '': 'App\Controllers\SpaController'
     'login//$@': 'App\Controllers\SpaController'
     'meine-listen//$@': 'App\Controllers\SpaController'
+    'gemerkte-listen//$@': 'App\Controllers\SpaController'
     'liste//$@': 'App\Controllers\SpaController'
     'profil//$@': 'App\Controllers\SpaController'

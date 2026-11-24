@@ -29,6 +29,12 @@ export const wishlistApi = {
     duplicate: (hash, data) => post(`wishlists/${enc(hash)}/duplicate`, data),
 };
 
+export const savedApi = {
+    list: () => get('saved'),
+    save: (hash) => put(`saved/${enc(hash)}`),
+    unsave: (hash) => del(`saved/${enc(hash)}`),
+};
+
 export const wishApi = {
     update: (hash, data) => put(`wishes/${enc(hash)}`, data),
     archive: (hash) => post(`wishes/${enc(hash)}/archive`),

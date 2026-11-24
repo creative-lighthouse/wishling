@@ -43,11 +43,14 @@ class PublicApiController extends ApiController
         $wishlist = $this->publicWishlist((string) $this->getRequest()->param('Hash'));
 
         // Besitzer sehen weder Reservierungen noch Verlauf noch weitere Geschenke – die Überraschung bleibt
-        $isOwner = $wishlist->isOwnedBy($this->currentUser());
+        $user = $this->currentUser();
+        $isOwner = $wishlist->isOwnedBy($user);
 
         return $this->json([
             'wishlist' => $wishlist->toApiForGuest(!$isOwner),
             'isOwner' => $isOwner,
+            // Nur für eingeloggte Gäste relevant (Button "Merken")
+            'isSaved' => $user && !$isOwner && $user->hasSaved($wishlist),
         ]);
     }
 

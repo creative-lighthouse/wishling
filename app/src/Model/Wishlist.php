@@ -37,6 +37,11 @@ class Wishlist extends DataObject
         'GuestGifts' => GuestGift::class . '.Wishlist',
     ];
 
+    private static $belongs_many_many = [
+        // User, die sich diese Liste gemerkt haben
+        'SavedBy' => User::class . '.SavedWishlists',
+    ];
+
     private static $owns = [
         'Wishes',
     ];
@@ -77,6 +82,13 @@ class Wishlist extends DataObject
         }
     }
 
+    protected function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+        // Merk-Verknüpfungen aufräumen (die User bleiben natürlich bestehen)
+        $this->SavedBy()->removeAll();
+    }
+
     public function isOwnedBy(?User $user): bool
     {
         return $user && $user->ID && (int) $this->OwnerID === (int) $user->ID;
@@ -104,6 +116,34 @@ class Wishlist extends DataObject
             'archived' => (bool) $this->Archived,
             'shareUrl' => $this->ViewLink(),
             'lastEdited' => $this->LastEdited,
+        ];
+    }
+
+    /**
+     * Kurzform für "Gemerkte Listen": nur, was Gäste ohnehin sehen dürfen
+     */
+    public function toApiSavedSummary(): array
+    {
+        $wishCount = 0;
+        $freeCount = 0;
+        foreach ($this->Wishes()->filter(['Archived' => false, 'Hidden' => false]) as $wish) {
+            $wishCount++;
+            if (!$wish->Reservations()->exists()) {
+                $freeCount++;
+            }
+        }
+
+        $owner = $this->Owner();
+
+        return [
+            'hash' => $this->Hash,
+            'title' => $this->Title,
+            'description' => $this->Description ?: '',
+            'ownerName' => $owner && $owner->exists() ? $owner->DisplayName : '',
+            'ownerAvatarUrl' => $owner && $owner->exists() ? AvatarService::singleton()->url($owner) : null,
+            'wishCount' => $wishCount,
+            'freeCount' => $freeCount,
+            'shareUrl' => $this->ViewLink(),
         ];
     }
 

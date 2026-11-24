@@ -1,7 +1,12 @@
 <template>
     <section class="section--Lists">
         <div class="section_content">
-            <h1>Meine Wunschlisten</h1>
+            <div class="lists_header">
+                <h1>Meine Wunschlisten</h1>
+                <button type="button" class="button button--primary button--icon-add" @click="dialog.openCreate()">
+                    Neue Wunschliste
+                </button>
+            </div>
 
             <PageState v-if="loading || loadError" :loading="loading" :error="loadError" />
 

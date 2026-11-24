@@ -34,6 +34,17 @@ class User extends DataObject
         'Sessions' => UserSession::class . '.User',
     ];
 
+    private static $many_many = [
+        // Fremde Wunschlisten, die sich der User gemerkt hat
+        'SavedWishlists' => Wishlist::class,
+    ];
+
+    private static $many_many_extraFields = [
+        'SavedWishlists' => [
+            'SavedAt' => 'Datetime',
+        ],
+    ];
+
     private static $cascade_deletes = [
         'Sessions',
     ];
@@ -72,11 +83,26 @@ class User extends DataObject
     {
         parent::onBeforeDelete();
         AvatarService::singleton()->remove($this, false);
+        // Nur die Merk-Verknüpfungen entfernen, nicht die Listen selbst
+        $this->SavedWishlists()->removeAll();
     }
 
     public function getTitle(): string
     {
         return $this->DisplayName ?: (string) $this->Email;
+    }
+
+    /**
+     * Anzahl gemerkter Listen, die Gäste aktuell öffnen können (nicht archiviert)
+     */
+    public function savedCount(): int
+    {
+        return $this->SavedWishlists()->filter('Archived', false)->count();
+    }
+
+    public function hasSaved(Wishlist $wishlist): bool
+    {
+        return $this->SavedWishlists()->filter('ID', $wishlist->ID)->exists();
     }
 
     public function toApi(): array
@@ -85,6 +111,7 @@ class User extends DataObject
             'email' => $this->Email,
             'displayName' => $this->DisplayName ?: '',
             'avatarUrl' => AvatarService::singleton()->url($this),
+            'savedCount' => $this->savedCount(),
         ];
     }
 }

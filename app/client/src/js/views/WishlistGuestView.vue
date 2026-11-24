@@ -30,6 +30,19 @@
                     </h1>
                     <p v-if="wishlist.description" class="wishlist_description">{{ wishlist.description }}</p>
                 </div>
+                <!-- Eingeloggte Gäste können sich fremde Listen merken (statt "Bearbeiten") -->
+                <button
+                    v-if="canSave"
+                    type="button"
+                    class="button wishlist_save"
+                    :class="isSaved ? 'button--icon-bookmarked' : 'button--primary button--icon-bookmark'"
+                    :aria-pressed="isSaved"
+                    :disabled="saving"
+                    :title="isSaved ? 'Nicht mehr merken' : 'In „Gemerkte Listen“ aufnehmen'"
+                    @click="toggleSaved"
+                >
+                    {{ isSaved ? 'Gemerkt' : 'Merken' }}
+                </button>
             </div>
 
             <template v-if="wishes.length">
@@ -111,7 +124,8 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { publicApi } from '@/api';
+import { publicApi, savedApi } from '@/api';
+import { useAuth } from '@/stores/auth';
 import { useToasts } from '@/composables/useToasts';
 import { useWishFilter } from '@/composables/useWishFilter';
 import { SORT_OPTIONS } from '@/utils/format';
@@ -130,9 +144,12 @@ const props = defineProps({
 });
 
 const toast = useToasts();
+const auth = useAuth();
 
 const wishlist = ref(null);
 const isOwner = ref(false);
+const isSaved = ref(false);
+const saving = ref(false);
 const loading = ref(true);
 const loadError = ref('');
 const reserveTarget = ref(null);
@@ -140,6 +157,7 @@ const releaseTarget = ref(null);
 const historyTarget = ref(null);
 const giftToRemove = ref(null);
 
+const canSave = computed(() => !!auth.state.user && !isOwner.value);
 const wishes = computed(() => wishlist.value?.wishes ?? []);
 const { search, sort, visibleWishes, toggleSort, sortState } = useWishFilter(wishes);
 
@@ -152,6 +170,7 @@ watch(
             const data = await publicApi.wishlist(hash);
             wishlist.value = data.wishlist;
             isOwner.value = data.isOwner;
+            isSaved.value = !!data.isSaved;
             sort.value = data.wishlist.defaultSort;
             document.title = `${data.wishlist.title} – Wishling`;
         } catch (e) {
@@ -164,6 +183,25 @@ watch(
     },
     { immediate: true },
 );
+
+async function toggleSaved() {
+    const title = wishlist.value.title;
+    saving.value = true;
+    try {
+        const result = isSaved.value
+            ? await savedApi.unsave(props.hash)
+            : await savedApi.save(props.hash);
+        isSaved.value = result.saved;
+        auth.setSavedCount(result.savedCount);
+        toast.success(result.saved
+            ? `„${title}“ findest du jetzt unter „Gemerkte Listen“.`
+            : `„${title}“ ist nicht mehr gemerkt.`);
+    } catch (e) {
+        toast.error(e.message);
+    } finally {
+        saving.value = false;
+    }
+}
 
 function replaceWish(updated) {
     const index = wishlist.value.wishes.findIndex((wish) => wish.hash === updated.hash);
