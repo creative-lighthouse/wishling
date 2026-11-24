@@ -1,0 +1,95 @@
+// Mobile Tab-Leiste am unteren Rand (ersetzt auf dem Handy die Links im Header)
+$breakpoint-tabbar: 600px;
+$tabbar-height: 64px;
+
+.tab_bar {
+    display: none;
+}
+
+@media (max-width: $breakpoint-tabbar) {
+    .app--tabbar {
+        // Platz schaffen, damit der Footer nicht unter der Leiste verschwindet
+        padding-bottom: calc(#{$tabbar-height} + env(safe-area-inset-bottom, 0px));
+
+        .area_header .header_nav {
+            display: none;
+        }
+
+        .toast_stack {
+            bottom: calc(#{$tabbar-height} + 12px + env(safe-area-inset-bottom, 0px));
+        }
+    }
+
+    .tab_bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 200;
+        display: flex;
+        background-color: var(--ColorBlack);
+        border-top: 1px solid var(--ColorBorder);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .tab_bar_link {
+        flex: 1 1 0;
+        min-width: 0;
+        height: $tabbar-height;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: var(--ColorTextSecondary);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        -webkit-tap-highlight-color: transparent;
+
+        &.router-link-active,
+        &.is-active {
+            color: var(--ColorFocus);
+
+            .tab_bar_avatar {
+                border-color: var(--ColorFocus);
+            }
+        }
+
+        &:focus-visible {
+            outline-offset: -4px;
+        }
+    }
+
+    .tab_bar_label {
+        max-width: 100%;
+        padding: 0 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tab_bar_icon {
+        display: block;
+        width: 26px;
+        height: 26px;
+        background-color: currentColor;
+        mask: var(--icon) center / contain no-repeat;
+        -webkit-mask: var(--icon) center / contain no-repeat;
+
+        &.tab_bar_icon--lists {
+            --icon: url('/_resources/app/client/icons/nav/nav_lists.svg');
+        }
+
+        &.tab_bar_icon--saved {
+            --icon: url('/_resources/app/client/icons/actions/action_bookmark.svg');
+        }
+    }
+
+    .tab_bar_avatar.user_avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+        border-width: 2px;
+    }
+}
